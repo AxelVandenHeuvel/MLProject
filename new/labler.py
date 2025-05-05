@@ -8,12 +8,12 @@ import numpy as np
 def add_momentum_features(df):
     df = df.copy()
 
-    df['own_consecutive_makes'] = 0
+    # df['own_consecutive_makes'] = 0
     df['opponent_consecutive_misses'] = 0
     df['own_scoring_streak'] = 0
-    df['opponent_scoring_streak'] = 0
+    # df['opponent_scoring_streak'] = 0
     df['last_5_play_points'] = 0
-    df['pace_last_5'] = 0.0
+    # df['pace_last_5'] = 0.0
     df['fouls_drawn_last_5'] = 0
 
     results = []
@@ -27,7 +27,7 @@ def add_momentum_features(df):
         opponent_misses = 0
 
         last_5_points = []
-        last_5_lengths = []
+        # last_5_lengths = []
         last_5_fouls = []
 
         last_team = None
@@ -63,20 +63,20 @@ def add_momentum_features(df):
 
             # Update last 5 plays trackers
             last_5_points.append(points)
-            last_5_lengths.append(row['play_length'])
+            # last_5_lengths.append(row['play_length'])
             last_5_fouls.append(foul)
 
             if len(last_5_points) > 5:
                 last_5_points.pop(0)
-                last_5_lengths.pop(0)
+                # last_5_lengths.pop(0)
                 last_5_fouls.pop(0)
 
-            game_df.loc[idx, 'own_consecutive_makes'] = own_makes
+            # game_df.loc[idx, 'own_consecutive_makes'] = own_makes
             game_df.loc[idx, 'opponent_consecutive_misses'] = opponent_misses
             game_df.loc[idx, 'own_scoring_streak'] = own_streak
-            game_df.loc[idx, 'opponent_scoring_streak'] = opponent_streak
+            # game_df.loc[idx, 'opponent_scoring_streak'] = opponent_streak
             game_df.loc[idx, 'last_5_play_points'] = sum(last_5_points)
-            game_df.loc[idx, 'pace_last_5'] = np.mean(last_5_lengths) if last_5_lengths else 0
+            # game_df.loc[idx, 'pace_last_5'] = np.mean(last_5_lengths) if last_5_lengths else 0
             game_df.loc[idx, 'fouls_drawn_last_5'] = sum(last_5_fouls)
 
             last_team = action_team
@@ -90,7 +90,7 @@ def label_momentum(row):
     # Define momentum conditions
     if (
         row['own_scoring_streak'] >= 3 or
-        row['last_5_play_points'] >= 7 or
+        row['last_5_play_points'] >= 6 or
         row['opponent_consecutive_misses'] >= 3 or
         row['fouls_drawn_last_5'] >= 2
     ):
