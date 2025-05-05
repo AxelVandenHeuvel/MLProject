@@ -43,8 +43,16 @@ class MomentumTransformer(nn.Module):
         self.pos_encoder = PositionalEncoding(d_model)
         encoder_layer = nn.TransformerEncoderLayer(d_model, nhead, batch_first=True)
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
-        self.output_layer = nn.Linear(d_model, num_classes)
-
+        self.output_layer = nn.Sequential(
+            nn.Dropout(0.2),  # small dropout
+            nn.Linear(d_model, num_classes)
+        )
+        self.output_transform = nn.Sequential(
+            nn.LayerNorm(d_model),
+            nn.Linear(d_model, d_model),
+            nn.ReLU(),
+            nn.Linear(d_model, num_classes)
+        )
         # Load category encoders and scaler
         with open("category_encoders.pkl", "rb") as f:
             self.category_encoders = pickle.load(f)
@@ -61,7 +69,7 @@ class MomentumTransformer(nn.Module):
         attention_scores = x.detach().mean(dim=2)
         x = self.transformer(x)
         x = x.mean(dim=1)
-        return self.output_layer(x), attention_scores
+        return self.output_transform(x), attention_scores
 
     def process_dataframe(self, df, sequence_length=5, make_labels=False, run_amount=5):
         df_encoded = df.copy()
